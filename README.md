@@ -69,7 +69,7 @@ mth 0001 0001 0000
 nam <TR
 ```
 
-### TR_D - PID 2216B5
+### TR_D - PID 2216B5 - direct TR1-4 signals from range sensor
 - 0000 = Park
 - 000C = Reverse
 - 0006 = Neutral
@@ -84,5 +84,48 @@ mth 0001 0001 0000
 nam TRD
 ```
 
+### GEAR - PID 2211B3 - transmission actual gear status
+- 4 = Overdrive
+- 3 = Drive
+- 2 = 2
+- 1 = 1 (also shown for Park, Neutral)
+```
+TXD C410 F122 11B3
+RXF 0462 0000 0000
+RXD 3007 
+MTH 0001 0001 0000
+NAM GEA
+```
+
+### CCS, SS1, SS2 - PID 221105 - Coast clutch solenoid, Shift solenoid 1, 2
+
+- "the shift solenoids provide gear selection of 1st thru 4th by controlling the pressure to the shift valves"
+- 0x10 = shift solenoid 1 on
+- 0x20 = shift solenoid 2 on
+- 0x40 = shift solenoid 3 on (not present in 4R100)
+- 0x80 = coast clutch solenoid on - coast clutch provides engine braking below 4th gear (overdrive). If engaged in 4th gear, transmission will be damaged.
+```
+gear   ss1     ss2     css     tcc     221105
+-----------------------------------------------
+prk/neu 1       0       0       0       0x10
+rev     1       0       0       0       0x10
+od-1    1       0       tcs     1/0     0x10,0x90 (tcs on)
+od-2    1       1       tcs     1/0     0x30,0xB0 (tcs on)
+od-3    0       1       tcs     1/0     0x20,0xA0 (tcs on)
+od-4    0       0       0       1/0     0x00,0x80 (only when tcs off)
+man-2   1       1       1       1/0     0xB0
+man-1   1       0       1       0       0x90
+-------------------------------------------------
+tcc = torque converter clutch solenoid - set by PCM when conditions are right
+tcs on = overdrive disabled, "OFF" illuminated
+```
+#### X-Gauge programming for PID 221105
+```
+TXD C410 F122 1105
+RXF 0462 1000 0000
+RXD 3008
+MTH 0001 0001 0000
+NAM SOL
+```
 
 
